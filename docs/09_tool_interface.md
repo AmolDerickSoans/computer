@@ -29,12 +29,13 @@ The tools wrap three Workspace surfaces:
 | `createListTool` | Page through one directory with file metadata. |
 | `createFindTool` | Find paths with `*`, `**`, and `?` globs. |
 | `createGrepTool` | Search text with regular expressions or fixed strings. |
+| `createSummaryTool` | Summarize one directory: counts, total bytes, and entries in a single call. |
 | `createDeleteTool` | Delete a file or directory. |
 | `createExecTool` | Run a command through a configured Workspace backend. |
 | `createPublishTool` | Publish a workspace file through `workspace.assets`. |
 | `WorkspaceFileStore` | Adapt `workspace.fs` to the store used by file tools. |
 
-Every tool set names its tools `read`, `ls`, `find`, `grep`, `write`, `edit`, and `delete`. `exec` appears when the Workspace has a backend, unless you pass `exec: {}`. `publish` appears when assets are configured. In read-only mode the set is `read`, `ls`, `find`, and `grep`.
+Every tool set names its tools `read`, `ls`, `find`, `grep`, `workspace_summary`, `write`, `edit`, and `delete`. `exec` appears when the Workspace has a backend, unless you pass `exec: {}`. `publish` appears when assets are configured. In read-only mode the set is `read`, `ls`, `find`, `grep`, and `workspace_summary`.
 
 ## Wiring up
 
@@ -292,6 +293,18 @@ The AI tool defaults to literal, case-sensitive matching. Set `regex: true` to i
 The tool passes `include`, `exclude`, `limit`, and `offset` through one `workspace.fs.grep` call. The storage search pages matching files and stops after the requested matches, so an included search does not build the full file or match list in the tool layer. Directory searches return matches in deterministic depth-first discovery order, then line order within each file. They are not globally sorted by full path.
 
 The lower-level `workspace.fs.grep` uses the same literal, case-sensitive defaults. Its options also accept `limit`, `offset`, `include`, `exclude`, `context`, `regex`, and `ignoreCase`.
+
+## `workspace_summary`
+
+```ts
+{
+  path?: string;          // default /workspace
+}
+```
+
+One call returns an at-a-glance picture of a directory: the entry count, file and directory counts, total bytes, and every entry with its size and kind (`file`, `directory`, or `symlink`). The listing covers the first 200 entries; `truncated: true` means there are more to page with `ls`. An unreadable or missing path comes back as `{ error }`, like the other tools.
+
+Its description is the one part of the tool set built from the workspace rather than fixed: it lists the registered execution backends — id, protocol, and whether the backend is callable — or states that none is registered. The inventory therefore stays accurate as backends are added or removed, and it tells a reader of the tool set alone what `exec` can reach.
 
 ## `write`
 

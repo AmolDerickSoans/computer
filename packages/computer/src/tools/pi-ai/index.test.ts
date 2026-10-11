@@ -33,6 +33,7 @@ describe("createPiTools declarations", () => {
       "grep",
       "ls",
       "read",
+      "workspace_summary",
       "write",
     ]);
     for (const tool of tools.tools) {
@@ -44,7 +45,26 @@ describe("createPiTools declarations", () => {
   it("omits mutating tools when readonly", () => {
     const tools = createPiTools({ workspace: makeWorkspace(), readonly: true });
 
-    expect(tools.tools.map((tool) => tool.name).sort()).toEqual(["find", "grep", "ls", "read"]);
+    expect(tools.tools.map((tool) => tool.name).sort()).toEqual([
+      "find",
+      "grep",
+      "ls",
+      "read",
+      "workspace_summary",
+    ]);
+  });
+
+  it("names the registered backends in the workspace_summary description", () => {
+    const workspace = makeWorkspace();
+    fakeBackends(workspace, [
+      { id: "worker-shell", protocol: "command", callable: false },
+      { id: "weather", protocol: "module", callable: true },
+    ]);
+    const tools = createPiTools({ workspace });
+
+    const summary = declaration(tools, "workspace_summary");
+    expect(summary.description).toContain("worker-shell");
+    expect(summary.description).toContain("weather");
   });
 
   it("names a backend on every exec call when there are several", () => {

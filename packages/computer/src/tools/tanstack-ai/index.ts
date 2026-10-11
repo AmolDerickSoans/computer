@@ -44,6 +44,11 @@ import {
   publishOutputSchema,
 } from "../common/publish.js";
 import { isAsyncIterable, settle } from "../common/stream.js";
+import {
+  summarizeWorkspace,
+  summaryInputSchema,
+  workspaceSummaryDescription,
+} from "../common/summary.js";
 
 /** Structurally compatible with `toolDefinition().server()`, declared locally so `@tanstack/ai` is not a build-time dependency. */
 export interface TanStackTool<Input = unknown> {
@@ -150,6 +155,13 @@ export function createTanStackTools<Format extends TanStackToolFormat = "array">
     description: grepDescription,
     inputSchema: grepInputSchema,
     run: async (input: never) => plain(await grepInWorkspace(workspace, input)),
+  });
+
+  add({
+    name: "workspace_summary",
+    description: workspaceSummaryDescription(workspace),
+    inputSchema: summaryInputSchema,
+    run: async (input: never) => plain(await summarizeWorkspace(workspace, input)),
   });
 
   if (!resolved.readonly) {

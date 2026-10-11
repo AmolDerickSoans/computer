@@ -22,7 +22,7 @@ things in it.
   module. Pick a full Linux container, a fast in-Worker shell, or an
   isolated JavaScript runtime, all against the same files.
 - **Batteries for agents.** Ready-made [AI SDK](https://github.com/vercel/ai)
-  tools (`read`, `ls`, `find`, `grep`, `write`, `edit`, `delete`, and optional
+  tools (`read`, `ls`, `find`, `grep`, `workspace_summary`, `write`, `edit`, `delete`, and optional
   `exec`), a git client, R2-backed read-only mounts, and helpers for publishing
   files.
 
@@ -272,9 +272,9 @@ to a named one — see [Multiple backends](#multiple-backends).
 `@cloudflare/computer/tools/ai-sdk` ships `createAITools()`, AI SDK tools that wrap the Workspace
 surfaces, ready to hand to `generateText`, `streamText`, or an agent
 framework's `getTools()`. The default set is `read`, `ls`, `find`,
-`grep`, `write`, `edit`, and `delete`, plus `exec` when the Workspace
-has a backend and `publish` when assets are configured. Read-only mode keeps `read`, `ls`, `find`, and
-`grep`.
+`grep`, `workspace_summary`, `write`, `edit`, and `delete`, plus `exec` when the Workspace
+has a backend and `publish` when assets are configured. Read-only mode keeps `read`, `ls`, `find`,
+`grep`, and `workspace_summary`.
 
 ```ts
 import { createAITools } from "@cloudflare/computer/tools/ai-sdk";

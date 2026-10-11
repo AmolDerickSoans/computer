@@ -57,6 +57,12 @@ import {
   publishDescription,
   publishInputSchema,
 } from "../common/publish.js";
+import {
+  type SummaryToolOptions,
+  summarizeWorkspace,
+  summaryInputSchema,
+  workspaceSummaryDescription,
+} from "../common/summary.js";
 import { toAISDKOutput } from "./output.js";
 
 export function createReadTool(options: ReadToolOptions): Tool<z.infer<typeof readInputSchema>> {
@@ -117,6 +123,16 @@ export function createGrepTool(options: GrepToolOptions): Tool<z.infer<typeof gr
     description: grepDescription,
     inputSchema: grepInputSchema,
     execute: (input) => grepInWorkspace(options.workspace, input),
+  });
+}
+
+export function createSummaryTool(
+  options: SummaryToolOptions,
+): Tool<z.infer<typeof summaryInputSchema>> {
+  return tool({
+    description: workspaceSummaryDescription(options.workspace),
+    inputSchema: summaryInputSchema,
+    execute: (input) => summarizeWorkspace(options.workspace, input),
   });
 }
 

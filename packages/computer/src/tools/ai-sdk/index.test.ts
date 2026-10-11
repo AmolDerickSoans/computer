@@ -332,6 +332,7 @@ describe("createAITools filesystem tools", () => {
       "grep",
       "ls",
       "read",
+      "workspace_summary",
       "write",
     ]);
   });
@@ -352,7 +353,56 @@ describe("createAITools filesystem tools", () => {
       },
     });
 
-    expect(Object.keys(tools).sort()).toEqual(["find", "grep", "ls", "read"]);
+    expect(Object.keys(tools).sort()).toEqual(["find", "grep", "ls", "read", "workspace_summary"]);
+  });
+
+  it("summarizes a directory through workspace_summary", async () => {
+    const workspace = makeWorkspace();
+    await workspace.fs.mkdir("/workspace/src", { recursive: true });
+    await workspace.fs.writeFile("/workspace/README.md", "# hi");
+    const tools = createAITools({ workspace });
+
+    const output = (await executeTool(tools.workspace_summary, {})) as {
+      path: string;
+      count: number;
+      files: number;
+      directories: number;
+      totalBytes: number;
+      truncated: boolean;
+      entries: Array<{ name: string; size: number; kind: string }>;
+    };
+
+    expect(output.path).toBe("/workspace");
+    expect(output.count).toBe(2);
+    expect(output.files).toBe(1);
+    expect(output.directories).toBe(1);
+    expect(output.truncated).toBe(false);
+    expect(output.entries.find((entry) => entry.name === "README.md")).toEqual({
+      name: "README.md",
+      size: "# hi".length,
+      kind: "file",
+    });
+    expect(output.entries.find((entry) => entry.name === "src")?.kind).toBe("directory");
+    expect(output.totalBytes).toBeGreaterThanOrEqual("# hi".length);
+  });
+
+  it("names the registered backends in the workspace_summary description", () => {
+    const workspace = makeWorkspace();
+    (workspace.runtime as unknown as Record<string, unknown>).backends = () => [
+      { id: "worker-shell", protocol: "command", callable: false },
+      { id: "weather", protocol: "module", callable: true },
+    ];
+    const tools = createAITools({ workspace });
+
+    const description = toolDescription(tools.workspace_summary);
+    expect(description).toContain("worker-shell");
+    expect(description).toContain("weather");
+  });
+
+  it("says so in the workspace_summary description when no backend is registered", () => {
+    const tools = createAITools({ workspace: makeWorkspace() });
+
+    expect(toolDescription(tools.workspace_summary)).toContain("No execution backend");
   });
 
   it("reads, lists, writes, and edits workspace files", async () => {

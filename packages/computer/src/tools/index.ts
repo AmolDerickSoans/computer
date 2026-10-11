@@ -13,6 +13,7 @@ export {
   createListTool,
   createPublishTool,
   createReadTool,
+  createSummaryTool,
   createWriteTool,
 } from "./ai-sdk/tools.js";
 export type {
@@ -33,3 +34,4 @@ export { WorkspaceFileStore, type WorkspaceLike } from "./common/fs/store.js";
 export type { FileStat, FileStore, MutableFileStore } from "./common/fs/types.js";
 export type { WriteToolOptions } from "./common/fs/write.js";
 export type { PublishToolOptions } from "./common/publish.js";
+export type { SummaryToolOptions } from "./common/summary.js";

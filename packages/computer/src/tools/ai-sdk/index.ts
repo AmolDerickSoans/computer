@@ -10,6 +10,7 @@ import {
   createListTool,
   createPublishTool,
   createReadTool,
+  createSummaryTool,
   createWriteTool,
 } from "./tools.js";
 
@@ -25,14 +26,15 @@ export {
   createListTool,
   createPublishTool,
   createReadTool,
+  createSummaryTool,
   createWriteTool,
 } from "./tools.js";
 
 /**
- * Build the AI SDK tool set for a Workspace: `read`, `ls`, `find`, and
- * `grep`, plus `write`, `edit`, `delete`, `exec`, and `publish` unless
- * the set is read-only. `exec` offers every backend the Workspace has
- * unless `exec` picks them.
+ * Build the AI SDK tool set for a Workspace: `read`, `ls`, `find`,
+ * `grep`, and `workspace_summary`, plus `write`, `edit`, `delete`,
+ * `exec`, and `publish` unless the set is read-only. `exec` offers
+ * every backend the Workspace has unless `exec` picks them.
  *
  * @param options - The Workspace and per-tool options.
  * @returns An AI SDK `ToolSet` for `generateText`, `streamText`, or an agent's `getTools()`.
@@ -46,6 +48,7 @@ export function createAITools(options: CreateAIToolsOptions): ToolSet {
     ls: createListTool({ workspace }),
     find: createFindTool({ workspace }),
     grep: createGrepTool({ workspace }),
+    workspace_summary: createSummaryTool({ workspace }),
   };
 
   if (resolved.readonly) return tools;

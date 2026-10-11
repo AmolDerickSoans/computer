@@ -29,6 +29,11 @@ import {
   publishInputSchema,
 } from "../common/publish.js";
 import { settle } from "../common/stream.js";
+import {
+  summarizeWorkspace,
+  summaryInputSchema,
+  workspaceSummaryDescription,
+} from "../common/summary.js";
 
 export interface ToolCallContext {
   abortSignal?: AbortSignal;
@@ -124,6 +129,12 @@ function piToolEntries(options: CreateToolsOptions): PiToolEntry[] {
       description: grepDescription,
       inputSchema: grepInputSchema,
       execute: (input) => grepInWorkspace(workspace, input),
+    } as PiToolEntry,
+    {
+      name: "workspace_summary",
+      description: workspaceSummaryDescription(workspace),
+      inputSchema: summaryInputSchema,
+      execute: (input) => summarizeWorkspace(workspace, input),
     } as PiToolEntry,
   ];
 

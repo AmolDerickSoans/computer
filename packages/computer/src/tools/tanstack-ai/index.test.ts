@@ -112,6 +112,7 @@ describe("createTanStackTools", () => {
       "grep",
       "ls",
       "read",
+      "workspace_summary",
       "write",
     ]);
     for (const tool of tools) {
@@ -133,7 +134,25 @@ describe("createTanStackTools", () => {
   it("omits mutating tools when readonly", () => {
     const tools = createTanStackTools({ workspace: makeWorkspace(), readonly: true });
 
-    expect(tools.map((tool) => tool.name).sort()).toEqual(["find", "grep", "ls", "read"]);
+    expect(tools.map((tool) => tool.name).sort()).toEqual([
+      "find",
+      "grep",
+      "ls",
+      "read",
+      "workspace_summary",
+    ]);
+  });
+
+  it("names the registered backends in the workspace_summary description", () => {
+    const workspace = makeWorkspace();
+    (workspace.runtime as unknown as Record<string, unknown>).backends = () => [
+      { id: "worker-shell", protocol: "command", callable: false },
+    ];
+    const tools = createTanStackTools({ workspace });
+
+    const summary = tools.find((tool) => tool.name === "workspace_summary");
+    expect(summary).toBeDefined();
+    expect(summary?.description).toContain("worker-shell");
   });
 
   it("passes the Zod schema through untouched for standard-schema validation", () => {
