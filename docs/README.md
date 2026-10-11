@@ -272,6 +272,8 @@ interface Workspace {
   ready(): Promise<void>;
   /** Wrap this Workspace in a stub for crossing the Workers RPC boundary. */
   stub():  WorkspaceStub;
+  /** Read-only snapshot: storage counters, revision, sync cursors, backends, mounts. */
+  inspect(options?: WorkspaceInspectOptions): Promise<WorkspaceInspectReport>;
   /** Tear down backend connections. */
   close(): Promise<void>;
 }

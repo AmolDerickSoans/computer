@@ -39,6 +39,11 @@ import type { AssetsClient } from "./assets/index.js";
 import type { BackendHandle, WorkspaceBackend } from "./backend.js";
 import { ExecutionRuntimeTracker, SqlExecutionRuntimeStore } from "./execution-runtime-tracker.js";
 import type { GitClient, GitClientFactory, GitIdentity } from "./git/index.js";
+import {
+  collectInspect,
+  type WorkspaceInspectOptions,
+  type WorkspaceInspectReport,
+} from "./inspect.js";
 import { MountIndex } from "./mounts/index.js";
 import { buildMountRegistry, type MountValue } from "./mounts/registry.js";
 import type { Mount } from "./mounts/types.js";
@@ -364,6 +369,33 @@ export class Workspace {
   // as a defensive copy so callers can't mutate the internal map.
   mounts(): Map<string, Mount> {
     return new Map(this.#mounts);
+  }
+
+  // Read-only debug snapshot: storage counters, revision and sync
+  // cursors, backend connection status, mounts, and recent execution
+  // metadata. Answered from the local store and in-memory state;
+  // never dials a backend, so it is safe to call frequently — from a
+  // health endpoint, an agent loop, or a log line.
+  inspect(options?: WorkspaceInspectOptions): Promise<WorkspaceInspectReport> {
+    return Promise.resolve(
+      collectInspect({
+        db: this.#db,
+        sessionId: this.#sessionId,
+        backends: this.#registeredBackends,
+        connected: (id) => {
+          const handle = this.#handles.get(id);
+          if (handle !== undefined) {
+            return {
+              connected: true,
+              ...(handle.runtimeId === undefined ? {} : { runtimeId: handle.runtimeId }),
+            };
+          }
+          return { connected: this.#moduleHandles.has(id) };
+        },
+        mounts: this.#mounts,
+        ...(options?.largestFiles === undefined ? {} : { largestFiles: options.largestFiles }),
+      }),
+    );
   }
 
   // Local store. Exposed for tests / diagnostics and for the

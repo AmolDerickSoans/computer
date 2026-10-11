@@ -522,6 +522,26 @@ default is a zero-cost no-op, so there's no overhead unless you opt in.
 An adapter for the Cloudflare runtime lives at
 `@cloudflare/computer/observe/cloudflare`.
 
+### Inspecting a workspace
+
+`workspace.inspect()` returns a structured, read-only snapshot of the
+workspace: storage counters (files, directories, file bytes, blobs,
+tombstones), the current sync revision, the largest files,
+per-backend sync cursors and pending operations, backend connection
+status, the mount registry, and tracked executions.
+
+```ts
+const report = await ws.inspect();
+report.storage.files;            // 12
+report.backends[0]?.connected;   // false until dialed
+await ws.inspect({ largestFiles: 0 }); // skip the largest-files walk
+```
+
+Every section is answered from the local Durable Object store and
+in-memory state. The call never dials a backend, so it is safe to run
+frequently — from a health endpoint, a periodic logger, or anything
+else that needs a glance at the workspace without touching the wire.
+
 ## Examples
 
 - [`examples/worker-shell`](../../examples/worker-shell) — the

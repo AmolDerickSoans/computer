@@ -35,6 +35,16 @@ export {
   type WorkspaceRuntimeClient,
 } from "./client.js";
 export { decodeExecEvents, encodeExecEvents } from "./exec-wire.js";
+export type {
+  InspectCollector,
+  WorkspaceInspectBackend,
+  WorkspaceInspectExecutions,
+  WorkspaceInspectMount,
+  WorkspaceInspectOptions,
+  WorkspaceInspectReport,
+  WorkspaceInspectStorage,
+  WorkspaceInspectSync,
+} from "./inspect.js";
 export { R2Bucket, type R2BucketBinding, type R2BucketOptions } from "./mounts/providers/r2.js";
 export type {
   EagerMount,
